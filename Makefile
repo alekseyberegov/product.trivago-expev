@@ -58,3 +58,5 @@ docker.run:  ## Run the docker image locally
 		-e CTZ_OPEN_SSH_TUNNEL=true \
 		$(ecr_repo)/$(app_name)
 
+freeze:  ## Create requirements txt with dependencies
+	pip3 freeze > requirements.txt
