@@ -7,6 +7,7 @@ setup(
     description='Expected Revenue Analytics',
     author='Aleksey Beregov',
     install_requires=[
+        'SQLAlchemy==1.4.36'
     ],
     tests_require=['pytest']
 )
