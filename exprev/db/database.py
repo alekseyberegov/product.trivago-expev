@@ -1,6 +1,7 @@
 import abc
 from sqlalchemy import create_engine
-from exprev.db.proxy import Proxy
+from exprev.net.proxy import Proxy
+from exprev.db.connection import Connection
 
 class DatabaseUrl(abc.ABC):
     @abc.abstractmethod
@@ -39,21 +40,32 @@ class Database:
     def driver(self) -> str:
         return self.__driver
 
-    def open(self, proxy: Proxy = None, url: DatabaseUrl = None) -> None:
+    def mount(self, proxy: Proxy = None, url: DatabaseUrl = None) -> 'Database':
         self.__proxy: Proxy = proxy
-        
+        connect_props = vars(self)
+
         if proxy is not None:
             proxy.start()
+            connect_props['host'] = proxy.get_host()
+            connect_props['port'] = proxy.get_port()
 
         if url is None:
             url = DefaultDatabaseUrl()
         
-        kwargs = vars(self)
-        self.__engine = create_engine(url.build(**kwargs))
+        self.__engine = create_engine(url.build(**connect_props))
         self.__open = True
 
-    def close(self) -> None:
+        return self
+
+    def connect(self) -> Connection:
+        if not self.__open:
+            return None
+
+        return Connection(self.__engine.connect())
+
+    def unmount(self) -> None:
         if self.__proxy is not None:
             self.__proxy.stop()
         if self.__open:
             self.__engine.dispose()
+            self.__open = False
