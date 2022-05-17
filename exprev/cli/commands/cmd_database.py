@@ -10,14 +10,30 @@ from exprev.net.sshtunnel import SecureTunnel
 @click.option('--passwd')
 @pass_environment
 def cli(ctx: Environment, query, user, passwd):
+    dbhost: str = str(ctx.config('database', 'host'))
+    dbport: int = int(ctx.config('database', 'port'))
+
     tunnel: SecureTunnel = SecureTunnel(
         ssh_user = str(ctx.config('proxy', 'ssh_user')),
         ssh_host = str(ctx.config('proxy', 'ssh_host')),
         ssh_port = int(ctx.config('proxy', 'ssh_port')),
         ssh_bind = int(ctx.config('proxy', 'ssh_bind')),
         ssh_pkey = str(ctx.asfile('proxy', 'ssh_pkey')),
-        host = str(ctx.config('database', 'host')),
-        port = int(ctx.config('database', 'port'))
+        host = dbhost,
+        port = dbport
     )
-    tunnel.start()
-    tunnel.stop()
+
+    database: Database = Database(
+        user     = ctx.config('database', 'user'),
+        passwd   = ctx.config('database', 'passwd'),
+        driver   = ctx.config('database', 'driver'),
+        database = ctx.config('database', 'database'),
+        host     = dbhost,
+        port     = dbport
+    )
+
+    database.mount(tunnel)
+    database.unmount()
+
+
+

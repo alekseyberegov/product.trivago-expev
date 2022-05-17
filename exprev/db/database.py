@@ -11,48 +11,43 @@ class DatabaseUrl(abc.ABC):
 class DefaultDatabaseUrl(DatabaseUrl):
     def build(self, **kwargs) -> str:
         return "".join([
-            kwargs['driver' ], '://',
-            kwargs['user'   ], ':',
-            kwargs['passwd' ], '@',
-            kwargs['host'   ], ':',
-            kwargs['port'   ], '/',
-            kwargs['database']
+            str(kwargs['driver'  ]), '://',
+            str(kwargs['user'    ]), ':',
+            str(kwargs['passwd'  ]), '@',
+            str(kwargs['host'    ]), ':',
+            str(kwargs['port'    ]), '/',
+            str(kwargs['database'])
         ])
 
 class Database:
     def __init__(self, **kwargs) -> None:
-        self.__driver = kwargs.get('driver')
-        self.__user = kwargs.get('user')
-        self.__passwd = kwargs.get('passwd')
-        self.__database = kwargs.get('database')
-        self.__host = kwargs.get('host')
-        self.__port = kwargs.get('port')
+        self.__db_props = dict(kwargs)
 
     @property
     def database(self) -> str:
-        return self.__database
+        return self.__db_props['database']
 
     @property
     def user(self) -> str:
-        return self.__user
+        return self.__db_props['user']
 
     @property
     def driver(self) -> str:
-        return self.__driver
-
+        return self.__db_props['driver']
+   
     def mount(self, proxy: Proxy = None, url: DatabaseUrl = None) -> 'Database':
         self.__proxy: Proxy = proxy
-        connect_props = vars(self)
+        props = dict(self.__db_props)
 
         if proxy is not None:
             proxy.start()
-            connect_props['host'] = proxy.get_host()
-            connect_props['port'] = proxy.get_port()
+            props['host'] = proxy.get_host()
+            props['port'] = proxy.get_port()
 
         if url is None:
             url = DefaultDatabaseUrl()
         
-        self.__engine = create_engine(url.build(**connect_props))
+        self.__engine = create_engine(url.build(**props))
         self.__open = True
 
         return self
