@@ -36,3 +36,7 @@ crunch_date           |2022-05-15         |
 partition_date        |2022-05-16         |
 ```
 
+## DOMO Cards
+* https://clicktripz.domo.com/page/534626075/kpis/details/742597243
+* 
+

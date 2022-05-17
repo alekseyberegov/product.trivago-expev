@@ -19,19 +19,8 @@ class Environment:
     def config(self, section: str, option: str) -> str:
         return self.__config.get(section, option)
 
-    def settings(self) -> Dict:
-        data = None
-        file = join(expanduser("~"), '.exprev.json')
-        if (exists(file)):
-            with open(file, 'r') as fd:
-                data = json.load(fd)
-        
-        return data if data is not None else {'version': 1}
-
-    def save(self, settings: Dict):
-        file = join(expanduser("~"), '.exprev.json')
-        with open(file, 'w', encoding ='utf8') as fd:
-            json.dump(settings, fd)
+    def asfile(self, section: str, option: str) -> str:
+        return os.path.expanduser(self.config(section, option))
 
     def log(self, msg, *args):
         """Logs a message to stderr."""
@@ -58,7 +47,8 @@ class ExpRevCLI(click.MultiCommand):
 
     def get_command(self, ctx, name):
         try:
-            mod = __import__(f"exprev.cli.commands.cmd_{name}", None, None, ["cli"])
+            pkg = 'exprev.cli.commands'
+            mod = __import__(f"{pkg}.cmd_{name}", None, None, ["cli"])
         except ImportError as e:
             raise e
         return mod.cli

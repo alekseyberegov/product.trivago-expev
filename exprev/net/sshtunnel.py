@@ -3,19 +3,16 @@ import io
 from sshtunnel import SSHTunnelForwarder
 from exprev.net.proxy import Proxy
 
-class SshTunnel(Proxy):
+class SecureTunnel(Proxy):
     def __init__(self, **kwargs) -> None:
-        self.__ssh_port = kwargs['ssh_port']
-        self.__ssh_host = kwargs['ssh_host']
+        self.__local_port = kwargs['ssh_bind']
+        self.__local_host = 'localhost'
 
-        with open(kwargs['ssh_file'], 'r') as file:
-            content = file.read()
-            ssh_pkey = paramiko.RSAKey.from_private_key(io.StringIO(content))
-
-        self.__tunnel = SSHTunnelForwarder(
+        self.__tunnel: SSHTunnelForwarder = SSHTunnelForwarder(
+            (kwargs['ssh_host'], kwargs['ssh_port']),
             ssh_username=kwargs['ssh_user'],
-            ssh_pkey=ssh_pkey,
-            ssh_host=(self.__ssh_host, self.__ssh_port),
+            ssh_pkey=kwargs['ssh_pkey'],
+            local_bind_address=(self.__local_host, self.__local_port),
             remote_bind_address=(kwargs['host'], kwargs['port'])
         )
 
@@ -26,7 +23,7 @@ class SshTunnel(Proxy):
         self.__tunnel.close()
 
     def get_host(self) -> str:
-        return self.__ssh_host
+        return self.__local_host
     
     def get_port(self) -> int:
-        return self.__ssh_port
+        return self.__local_port
