@@ -2,6 +2,7 @@ import click, json, os
 
 from exprev.cli.cli import pass_environment, Environment
 from exprev.db.database import Database
+from exprev.db.resultset import RecordCollection, Record
 from exprev.net.sshtunnel import SecureTunnel
 
 @click.command("database", short_help="run SQL query")
@@ -33,7 +34,13 @@ def cli(ctx: Environment, query, user, passwd):
     )
 
     database.mount(tunnel)
-    database.unmount()
+    try:
+        with database.connect() as dbcon:
+            records: RecordCollection = dbcon.query(query);
+            df = records.export('df');
+            print(df)
+    finally:
+        database.unmount()
 
 
 
