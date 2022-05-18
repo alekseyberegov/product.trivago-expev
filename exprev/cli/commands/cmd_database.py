@@ -4,13 +4,21 @@ from exprev.cli.cli import pass_environment, Environment
 from exprev.db.database import Database
 from exprev.db.resultset import RecordCollection, Record
 from exprev.net.sshtunnel import SecureTunnel
+from exprev.utils.template import render_template
 
-@click.command("database", short_help="run SQL query")
-@click.argument("query")
-@click.option('--user')
-@click.option('--passwd')
+@click.command("database", short_help="run SQL script")
+@click.argument("sqlfile", type=click.Path(exists=True))
+@click.option('--param',  multiple=True, type=(str, str))
 @pass_environment
-def cli(ctx: Environment, query, user, passwd):
+def cli(ctx: Environment, sqlfile, param):
+    sql_params = {}
+    if param is not None:
+        for name, value in param:
+            sql_params[name] = value
+
+    with open(sqlfile, 'r') as fd:
+        query = fd.read()
+
     dbhost: str = str(ctx.config('database', 'host'))
     dbport: int = int(ctx.config('database', 'port'))
 
@@ -36,7 +44,7 @@ def cli(ctx: Environment, query, user, passwd):
     database.mount(tunnel)
     try:
         with database.connect() as dbcon:
-            records: RecordCollection = dbcon.query(query);
+            records: RecordCollection = dbcon.query(render_template(query, sql_params));
             df = records.export('df');
             print(df)
     finally:

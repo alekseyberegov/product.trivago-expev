@@ -50,7 +50,7 @@ class ExpRevCLI(click.MultiCommand):
             pkg = 'exprev.cli.commands'
             mod = __import__(f"{pkg}.cmd_{name}", None, None, ["cli"])
         except ImportError as e:
-            raise e
+            return None
         return mod.cli
 
 

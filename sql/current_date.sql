@@ -1,0 +1,2 @@
+select current_date
+
