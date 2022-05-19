@@ -1,4 +1,4 @@
-import click, json, os
+import click
 
 from exprev.cli.cli import pass_environment, Environment
 from exprev.db.database import Database
@@ -17,10 +17,10 @@ def cli(ctx: Environment, sqlfile, param):
             sql_params[name] = value
 
     with open(sqlfile, 'r') as fd:
-        query = fd.read()
+        sql_query = fd.read()
 
-    dbhost: str = str(ctx.config('database', 'host'))
-    dbport: int = int(ctx.config('database', 'port'))
+    db_host: str = str(ctx.config('database', 'host'))
+    db_port: int = int(ctx.config('database', 'port'))
 
     tunnel: SecureTunnel = SecureTunnel(
         ssh_user = str(ctx.config('proxy', 'ssh_user')),
@@ -28,8 +28,8 @@ def cli(ctx: Environment, sqlfile, param):
         ssh_port = int(ctx.config('proxy', 'ssh_port')),
         ssh_bind = int(ctx.config('proxy', 'ssh_bind')),
         ssh_pkey = str(ctx.asfile('proxy', 'ssh_pkey')),
-        host = dbhost,
-        port = dbport
+        host = db_host,
+        port = db_port
     )
 
     database: Database = Database(
@@ -37,14 +37,14 @@ def cli(ctx: Environment, sqlfile, param):
         passwd   = ctx.config('database', 'passwd'),
         driver   = ctx.config('database', 'driver'),
         database = ctx.config('database', 'database'),
-        host     = dbhost,
-        port     = dbport
-    )
+        host     = db_host,
+        port     = db_port
+    )       
 
     database.mount(tunnel)
     try:
         with database.connect() as dbcon:
-            records: RecordCollection = dbcon.query(render_template(query, sql_params));
+            records: RecordCollection = dbcon.query(render_template(sql_query, sql_params));
             df = records.export('df');
             print(df)
     finally:

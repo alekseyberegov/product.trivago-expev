@@ -13,7 +13,8 @@ setup(
         'sshtunnel==0.4.0',
         'sycopg2-binary==2.9.3',
         'pandas==1.4.2',
-        'numpy==1.22.3'
+        'numpy==1.22.3',
+        'awswrangler==2.15.1'
     ],
     setup_requires=['pytest-runner'],
     tests_require=['pytest']

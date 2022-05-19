@@ -29,7 +29,8 @@ ct_rev as (
 			, count(1) as click_cnt
 			, sum(advertiser_cpc) as cost_usd
 		from v_all_clean_clicks 
-		where advertiser_id = 156 and utc_date between cast('${crunch_date}' as date) - 32 and cast('${crunch_date}' as date)
+		where advertiser_id = 156 and 
+            utc_date between cast('${crunch_date}' as date) - 32 and cast('${crunch_date}' as date)
 		group by 1,2,3,4,5
 		union all
 		select
@@ -41,9 +42,10 @@ ct_rev as (
 			, 0 as click_cnt
 			, 0 as cost_usd
 		from v_all_clicks 
-		where advertiser_id = 156 and utc_date between cast('${crunch_date}' as date) - 32 and cast('${crunch_date}' as date)
+		where advertiser_id = 156 and 
+            utc_date between cast('${crunch_date}' as date) - 32 and cast('${crunch_date}' as date)
 		group by 1,2,3,4,5
-	)
+	) data
 	group by 1,2,3,4,5
 )
 select
@@ -69,6 +71,6 @@ from ct_rev c
 	left join metadata_publishers mp  on mp.id = c.publisher_id
 	left join mart.campaigns mc on mc.id = c.campaign_id 
 	left join mart.campaign_tags mc0 on mc0.campaign_id = c.campaign_id and mc0.name = c.publisher_id 
-	left join mart.campaign_tags mc1 on mc1.campaign_id = c.campaign_id and mc1.name = 'Bucket_NT' and c.placement_id ilike '%_nt_p%'
+	left join mart.campaign_tags mc1 on mc1.campaign_id = c.campaign_id and mc1.name = 'Bucket_NT' and strpos(c.placement_id, '_nt_p') > 0
 	left join mart.campaign_tags mc2 on mc2.campaign_id = c.campaign_id and mc2.name = 'Bucket' 
 	
