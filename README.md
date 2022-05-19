@@ -47,7 +47,16 @@ crunch_date           |2022-05-15         |
 partition_date        |2022-05-16         |
 ```
 
+### Lookup tables
+* `exploratory.currency_exchange_rates`
+* `exploratory.trivago_max_tcpa`
+
 ## DOMO Cards
 * https://clicktripz.domo.com/page/534626075/kpis/details/742597243
-* 
+
+## Utilities
+### Create Athena table from JSON data
+```
+$ ./cli.sh glue --table test_table_1 --partition date ./data/json/sample_data.json
+``` 
 

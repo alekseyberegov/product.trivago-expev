@@ -4,7 +4,7 @@ with trivago_roas as (
 		,advertiser_tracking_id 			as placement_id
 		,sum(clickouts_cnt) 				as co_cnt
 		,sum(advertiser_revenue_amt)		as co_rev_usd
-		,sum(local_advertiser_revenue_amt)	as co_rev_eu
+		,sum(local_advertiser_revenue_amt)	as co_rev_eur
 		,sum(bookings_cnt) 					as book_cnt
 	from lake.trivago_roas 
 	where report_date >= '${crunch_date}' - 32
@@ -21,7 +21,7 @@ ct_rev as (
 		, sum(cost_usd)  as cost_usd
 	from (
 		select
-			 trunc(convert_timezone('PST', 'UTC', date)) as utc_date
+			  trunc(convert_timezone('PST', 'UTC', date)) as utc_date
 			, advertiser_id
 			, campaign_id
 			, publisher_id
@@ -34,7 +34,7 @@ ct_rev as (
 		group by 1,2,3,4,5
 		union all
 		select
-			 trunc(convert_timezone('PST', 'UTC', date)) as utc_date
+			  trunc(convert_timezone('PST', 'UTC', date)) as utc_date
 			, advertiser_id
 			, campaign_id
 			, publisher_id
@@ -49,7 +49,7 @@ ct_rev as (
 	group by 1,2,3,4,5
 )
 select
-	cast('${crunch_date}' as date) as crunch_date
+	  cast('${crunch_date}' as date) as crunch_date
 	, c.utc_date
 	, coalesce(mc0."tag", mc1."tag", mc2."tag") as tracking_id
 	, c.placement_id
@@ -60,7 +60,7 @@ select
 	, nvl(c.cost_usd,  0) as cost_usd
 	, nvl(r.co_cnt,    0) as co_cnt
 	, nvl(r.co_rev_usd,0) as co_rev_usd
-	, nvl(r.co_rev_eu, 0) as co_rev_eu
+	, nvl(r.co_rev_eur,0) as co_rev_eur
 	, nvl(r.book_cnt,  0) as book_cnt
 	, ma.name as advertiser_name
 	, mc.name as campaign_name

@@ -1,3 +1,4 @@
+import functools
 import json
 import click
 import awswrangler
@@ -7,19 +8,21 @@ import boto3
 from exprev.cli.cli import pass_environment, Environment
 
 @click.command("glue", short_help="manage datasets using S3/Glue/Athena")
-@click.argument("jsonfile", type=click.Path(exists=True))
+@click.argument("file", type=click.Path(exists=True))
+@click.option("--format", type=click.Choice(['json', 'csv']), show_default=True, default="json", help="the file format")
 @click.option('--table',  type=str, required=True, help="the table name")
 @click.option('--partition',  type=str, multiple=True)
 @click.option("--mode", type=click.Choice(['append', 'overwrite_partitions', 'overwrite']), 
     show_default=True, default="overwrite_partitions", help="the data overwite mode")
 @pass_environment
-def cli(ctx: Environment, jsonfile, table: str, partition, mode:str):
+def cli(ctx: Environment, file, format:str, table: str, partition:str, mode:str):
     boto3.setup_default_session(region_name="us-west-2")
 
-    with open(jsonfile, 'r') as fd:
-        json_str = fd.read()
+    df = {
+        'json': functools.partial(pandas.read_json,file, **{'typ':'frame','orient':'columns'}),
+        'csv' : functools.partial(pandas.read_csv ,file)
+    }[format]()
 
-    df = pandas.DataFrame(json.loads(json_str))
     # TODO: make a backup and cut a new version
     awswrangler.s3.to_parquet(
         df = df,
