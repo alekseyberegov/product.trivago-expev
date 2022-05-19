@@ -15,6 +15,9 @@ class Environment:
         self.verbose = False
         self.home = os.getcwd()
         self.__config = (ConfigLoader("exprev.ini")).config()
+
+    def config_parser(self):
+        return self.__config
         
     def config(self, section: str, option: str) -> str:
         return self.__config.get(section, option)
