@@ -23,14 +23,17 @@ def cli(ctx: Environment, file, format:str, table: str, partition:str, mode:str)
         'csv' : functools.partial(pandas.read_csv ,file)
     }[format]()
 
+    folder = ctx.config('s3', 'product_adm')
+
     # TODO: make a backup and cut a new version
     awswrangler.s3.to_parquet(
         df = df,
-        path = ctx.config('s3', 'product_adm'),
+        path = f"{folder}{table}",
         dataset = True,
         mode = mode,
         partition_cols = partition if len(partition) > 0 else None,
         database = ctx.config('glue', 'database'),
-        table = table
+        table = table,
+        dtype={'date': 'string'}
     )
 
