@@ -7,30 +7,30 @@ with optimize as (
 select c.crunch_date
 	, c.tracking_id
 	, c.placement_id
-	, decode(c.cost_usd_7     >= opt.min_spend and nvl(tcpa_usd_7,     0) > 0, true, c.tcpa_usd_7,     NULL) as tcpa_0_usd_7
-	, decode(c.cost_usd_14    >= opt.min_spend and nvl(tcpa_usd_14,    0) > 0, true, c.tcpa_usd_14,    NULL) as tcpa_0_usd_14
-	, decode(c.cost_usd_30    >= opt.min_spend and nvl(tcpa_usd_30,    0) > 0, true, c.tcpa_usd_30,    NULL) as tcpa_0_usd_30
-	, decode(c.cost_usd_bt_7  >= opt.min_spend and nvl(tcpa_bt_usd_7 , 0) > 0, true, c.tcpa_bt_usd_7,  NULL) as tcpa_0_bt_usd_7
-	, decode(c.cost_usd_bt_14 >= opt.min_spend and nvl(tcpa_bt_usd_14, 0) > 0, true, c.tcpa_bt_usd_14, NULL) as tcpa_0_bt_usd_14
-	, decode(c.cost_usd_bt_30 >= opt.min_spend and nvl(tcpa_bt_usd_30, 0) > 0, true, c.tcpa_bt_usd_30, NULL) as tcpa_0_bt_usd_30
-	, decode(c.cost_usd_mv_7  >= opt.min_spend and nvl(tcpa_mv_usd_7 , 0) > 0, true, c.tcpa_mv_usd_7,  NULL) as tcpa_0_mv_usd_7
-	, decode(c.cost_usd_mv_14 >= opt.min_spend and nvl(tcpa_mv_usd_14 ,0) > 0, true, c.tcpa_mv_usd_14, NULL) as tcpa_0_mv_usd_14
-	, decode(c.cost_usd_mv_30 >= opt.min_spend and nvl(tcpa_mv_usd_30 ,0) > 0, true, c.tcpa_mv_usd_30, NULL) as tcpa_0_mv_usd_30
+	, decode(c.cost_pm_usd_07 >= opt.min_spend and nvl(tcpa_pm_usd_07, 0) > 0, true, c.tcpa_pm_usd_07, NULL) as tcpa_0_pm_usd_07
+	, decode(c.cost_pm_usd_14 >= opt.min_spend and nvl(tcpa_pm_usd_14, 0) > 0, true, c.tcpa_pm_usd_14, NULL) as tcpa_0_pm_usd_14
+	, decode(c.cost_pm_usd_30 >= opt.min_spend and nvl(tcpa_pm_usd_30, 0) > 0, true, c.tcpa_pm_usd_30, NULL) as tcpa_0_pm_usd_30
+	, decode(c.cost_bt_usd_07 >= opt.min_spend and nvl(tcpa_bt_usd_07, 0) > 0, true, c.tcpa_bt_usd_07, NULL) as tcpa_0_bt_usd_07
+	, decode(c.cost_bt_usd_14 >= opt.min_spend and nvl(tcpa_bt_usd_14, 0) > 0, true, c.tcpa_bt_usd_14, NULL) as tcpa_0_bt_usd_14
+	, decode(c.cost_bt_usd_30 >= opt.min_spend and nvl(tcpa_bt_usd_30, 0) > 0, true, c.tcpa_bt_usd_30, NULL) as tcpa_0_bt_usd_30
+	, decode(c.cost_mv_usd_07 >= opt.min_spend and nvl(tcpa_mv_usd_07, 0) > 0, true, c.tcpa_mv_usd_07, NULL) as tcpa_0_mv_usd_07
+	, decode(c.cost_mv_usd_14 >= opt.min_spend and nvl(tcpa_mv_usd_14 ,0) > 0, true, c.tcpa_mv_usd_14, NULL) as tcpa_0_mv_usd_14
+	, decode(c.cost_mv_usd_30 >= opt.min_spend and nvl(tcpa_mv_usd_30 ,0) > 0, true, c.tcpa_mv_usd_30, NULL) as tcpa_0_mv_usd_30
 	, coalesce(
-		tcpa_0_usd_7, 	 tcpa_0_usd_14,    tcpa_0_usd_30,
-		tcpa_0_bt_usd_7, tcpa_0_bt_usd_14, tcpa_0_bt_usd_30, 
-		tcpa_0_mv_usd_7, tcpa_0_mv_usd_14, tcpa_0_mv_usd_30
-	  ) as cpa_0_usd
+		tcpa_0_pm_usd_07, tcpa_0_pm_usd_14, tcpa_0_pm_usd_30,
+		tcpa_0_bt_usd_07, tcpa_0_bt_usd_14, tcpa_0_bt_usd_30, 
+		tcpa_0_mv_usd_07, tcpa_0_mv_usd_14, tcpa_0_mv_usd_30
+	  ) as tcpa_0_usd
 	, tmt.max_tcpa 
-	, decode(cpa_0_usd > tmt.max_tcpa, true, tmt.max_tcpa, cpa_0_usd) as cpa_1_usd
-	, decode(cpa_0_usd < opt.min_tcpa, true, opt.min_tcpa, cpa_1_usd) as cpa_2_usd
+	, decode(tcpa_0_usd > tmt.max_tcpa, true, tmt.max_tcpa, tcpa_0_usd) as tcpa_1_usd
+	, decode(tcpa_0_usd < opt.min_tcpa, true, opt.min_tcpa, tcpa_1_usd) as tcpa_2_usd
 	, tft.tcpa_usd as prev_tcpa_usd
 	, case 
-		when nvl(tft.tcpa_usd, 0) > 0 and cpa_2_usd / tft.tcpa_usd - 1 > opt.max_up_pct 
+		when nvl(tft.tcpa_usd, 0) > 0 and tcpa_2_usd / tft.tcpa_usd - 1 > opt.max_up_pct 
 			then (1 + opt.max_up_pct) * tft.tcpa_usd
-		when nvl(tft.tcpa_usd, 0) > 0 and cpa_2_usd / tft.tcpa_usd - 1 < opt.max_down_pct 
+		when nvl(tft.tcpa_usd, 0) > 0 and tcpa_2_usd / tft.tcpa_usd - 1 < opt.max_down_pct 
 			then (1 - opt.max_down_pct) * tft.tcpa_usd
-		else cpa_2_usd
+		else tcpa_2_usd
 	 end as tcpa_usd
 from exploratory.trivago_tcpa c 
 	cross join optimize opt
