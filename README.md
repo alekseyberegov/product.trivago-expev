@@ -69,3 +69,8 @@ $ ./cli.sh glue --table trivago_max_tcpa --format csv ./data/csv/max_tcpa.csv
 $ ./cli.sh glue --table trivago_performance_agg --partition crunch_date  ./sql/trivago_performance.sql --param crunch_date "2022-05-16" --format sql
 ```
 
+```
+$ ./cli.sh glue --table trivago_tcpa --partition crunch_date  ./sql/trivago_tcpa.sql --param crunch_date "2022-05-16" --format sql
+```
+
+
