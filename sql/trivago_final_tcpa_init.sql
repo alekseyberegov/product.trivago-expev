@@ -31,7 +31,7 @@ from (
 			when tcpa_0_usd < opt.min_tcpa then opt.min_tcpa
 			else tcpa_0_usd
 		  end as tcpa_1_usd
-		, tft.tcpa_usd as prev_tcpa_usd
+		, tcpa_1_usd as prev_tcpa_usd
 		, case 
 			when nvl(prev_tcpa_usd, 0) > 0 and tcpa_1_usd / prev_tcpa_usd - 1 > opt.max_up_pct then (1 + opt.max_up_pct) * prev_tcpa_usd
 			when nvl(prev_tcpa_usd, 0) > 0 and tcpa_1_usd / prev_tcpa_usd - 1 < opt.min_dn_pct then (1 + opt.min_dn_pct) * prev_tcpa_usd
@@ -45,6 +45,5 @@ from (
 			order by crunch_date desc
 		) opt
 		left join exploratory.trivago_max_tcpa tmt on (tmt.country = c.mrkt)
-		left join exploratory.trivago_final_tcpa tft on (tft.start_date = c.crunch_date and tft.placement_id = c.placement_id)
 	where c.crunch_date =  '${crunch_date}'
 ) d
