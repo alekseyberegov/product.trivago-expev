@@ -4,7 +4,8 @@ with optimize as (
 		,  0.2  as max_up_pct
 		, -0.2  as max_dn_pct
 )
-select c.crunch_date
+select c.crunch_date::date - 1 as start_date
+	, c.crunch_date
 	, c.tracking_id
 	, c.placement_id
 	, case when c.cost_pm_usd_07 >= opt.min_spend and nvl(tcpa_pm_usd_07, 0) > 0 then c.tcpa_pm_usd_07 end as tcpa_0_pm_usd_07
@@ -36,5 +37,5 @@ select c.crunch_date
 	 end as tcpa_usd
 from exploratory.trivago_tcpa c cross join optimize opt
 	left join exploratory.trivago_max_tcpa tmt on (tmt.country = c.mrkt)
-	left join exploratory.trivago_final_tcpa tft on (tft.crunch_date::date - 1 = c.crunch_date and tft.placement_id = c.placement_id)
+	left join exploratory.trivago_fin_tcpa tft on (tft.crunch_date::date - 1 = c.crunch_date and tft.placement_id = c.placement_id)
 where c.crunch_date =  '${crunch_date}'
