@@ -132,6 +132,7 @@ from (
 	from exploratory.trivago_exrev er 
 		left join exploratory.currency_exchange_rates fx on (er.crunch_date = fx.partition_date)
 	where er.partition_date >= '${crunch_date}'
+		and er.locale = upper(substring(er.cip_tc,1,2))
 ) e using (crunch_date, placement_id)
 left join exploratory.trivago_max_tcpa tmt on (tmt.country = c.mrkt)
 where c.crunch_date =  '${crunch_date}'
